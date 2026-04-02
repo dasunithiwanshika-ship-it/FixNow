@@ -47,11 +47,17 @@ exports.getDashboardStats = async (req, res) => {
             
             const reviewsGiven = await Review.countDocuments({ reviewer: userId });
 
+            const activeJobs = await ServiceRequest.find({
+                customer: userId,
+                status: { $in: ['Accepted', 'In Progress'] }
+            }).populate('worker', 'name profileImage rating');
+
             stats = {
                 jobsCompleted: completedJobs.length,
                 postsCreated,
                 reviewsGiven,
-                totalPayments
+                totalPayments,
+                activeJobs
             };
         } else if (role === 'Worker') {
             const completedJobs = await ServiceRequest.find({ 
@@ -62,10 +68,16 @@ exports.getDashboardStats = async (req, res) => {
             
             const reviewsReceived = await Review.countDocuments({ worker: userId });
 
+            const activeJobs = await ServiceRequest.find({
+                worker: userId,
+                status: { $in: ['Accepted', 'In Progress'] }
+            }).populate('customer', 'name profileImage rating');
+
             stats = {
                 jobsCompleted: completedJobs.length,
                 reviewsReceived,
-                totalEarnings
+                totalEarnings,
+                activeJobs
             };
         }
 

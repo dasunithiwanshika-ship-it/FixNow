@@ -1,6 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { MotiView, AnimatePresence } from 'moti';
+import { User, Mail, Lock, Briefcase, MapPin, ArrowRight, LogIn } from 'lucide-react-native';
 import { AuthContext } from '../context/AuthContext';
+import { theme } from '../utils/theme';
+
+const { width } = Dimensions.get('window');
 
 const RegisterScreen = ({ navigation }) => {
     const [name, setName] = useState('');
@@ -27,66 +32,266 @@ const RegisterScreen = ({ navigation }) => {
 
         try {
             await register(userData);
-            // Will navigate automatically via App.js conditional rendering
         } catch (error) {
             Alert.alert('Registration Failed', error.response?.data?.message || 'Something went wrong');
         }
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Create Account</Text>
-
-            <View style={styles.roleContainer}>
-                <TouchableOpacity 
-                    style={[styles.roleButton, role === 'Customer' && styles.roleButtonActive]} 
-                    onPress={() => setRole('Customer')}
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+        >
+            <ScrollView 
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <MotiView 
+                    from={{ opacity: 0, translateY: 20 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{ type: 'timing', duration: 800 }}
+                    style={styles.inner}
                 >
-                    <Text style={[styles.roleText, role === 'Customer' && styles.roleTextActive]}>Customer</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.roleButton, role === 'Worker' && styles.roleButtonActive]} 
-                    onPress={() => setRole('Worker')}
-                >
-                    <Text style={[styles.roleText, role === 'Worker' && styles.roleTextActive]}>Worker</Text>
-                </TouchableOpacity>
-            </View>
+                    <View style={styles.header}>
+                        <Text style={styles.title}>Create Account</Text>
+                        <Text style={styles.subtitle}>Join FixNow and get started today</Text>
+                    </View>
 
-            <TextInput style={styles.input} placeholder="Full Name" value={name} onChangeText={setName} />
-            <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-            <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+                    <View style={styles.roleContainer}>
+                        <TouchableOpacity 
+                            activeOpacity={0.8}
+                            style={[styles.roleButton, role === 'Customer' && styles.roleButtonActive]} 
+                            onPress={() => setRole('Customer')}
+                        >
+                            <User size={18} color={role === 'Customer' ? '#fff' : theme.colors.primary} />
+                            <Text style={[styles.roleText, role === 'Customer' && styles.roleTextActive]}>Customer</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            activeOpacity={0.8}
+                            style={[styles.roleButton, role === 'Worker' && styles.roleButtonActive]} 
+                            onPress={() => setRole('Worker')}
+                        >
+                            <Briefcase size={18} color={role === 'Worker' ? '#fff' : theme.colors.primary} />
+                            <Text style={[styles.roleText, role === 'Worker' && styles.roleTextActive]}>Worker</Text>
+                        </TouchableOpacity>
+                    </View>
 
-            {role === 'Worker' && (
-                <>
-                    <TextInput style={styles.input} placeholder="Service Type (e.g., Plumber)" value={serviceType} onChangeText={setServiceType} />
-                    <TextInput style={styles.input} placeholder="Location (City or Area)" value={location} onChangeText={setLocation} />
-                </>
-            )}
+                    <View style={styles.form}>
+                        <View style={styles.inputContainer}>
+                            <User size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                            <TextInput 
+                                style={styles.input} 
+                                placeholder="Full Name" 
+                                value={name} 
+                                onChangeText={setName} 
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={isLoading}>
-                {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register</Text>}
-            </TouchableOpacity>
+                        <View style={styles.inputContainer}>
+                            <Mail size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                            <TextInput 
+                                style={styles.input} 
+                                placeholder="Email Address" 
+                                value={email} 
+                                onChangeText={setEmail} 
+                                keyboardType="email-address" 
+                                autoCapitalize="none" 
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
 
-            <TouchableOpacity style={styles.loginLink} onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginText}>Already have an account? Log in.</Text>
-            </TouchableOpacity>
-        </ScrollView>
+                        <View style={styles.inputContainer}>
+                            <Lock size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                            <TextInput 
+                                style={styles.input} 
+                                placeholder="Password" 
+                                value={password} 
+                                onChangeText={setPassword} 
+                                secureTextEntry 
+                                placeholderTextColor={theme.colors.textSecondary}
+                            />
+                        </View>
+
+                        <AnimatePresence>
+                            {role === 'Worker' && (
+                                <MotiView
+                                    from={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 130 }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ type: 'timing', duration: 400 }}
+                                    style={{ overflow: 'hidden' }}
+                                >
+                                    <View style={styles.inputContainer}>
+                                        <Briefcase size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                                        <TextInput 
+                                            style={styles.input} 
+                                            placeholder="Service Type (e.g., Plumber)" 
+                                            value={serviceType} 
+                                            onChangeText={setServiceType} 
+                                            placeholderTextColor={theme.colors.textSecondary}
+                                        />
+                                    </View>
+                                    <View style={styles.inputContainer}>
+                                        <MapPin size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                                        <TextInput 
+                                            style={styles.input} 
+                                            placeholder="Location (City or Area)" 
+                                            value={location} 
+                                            onChangeText={setLocation} 
+                                            placeholderTextColor={theme.colors.textSecondary}
+                                        />
+                                    </View>
+                                </MotiView>
+                            )}
+                        </AnimatePresence>
+
+                        <TouchableOpacity 
+                            style={[styles.button, isLoading && styles.buttonDisabled]} 
+                            onPress={handleRegister} 
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <View style={styles.buttonInner}>
+                                    <Text style={styles.buttonText}>Register Now</Text>
+                                    <ArrowRight size={20} color="#fff" style={{ marginLeft: 8 }} />
+                                </View>
+                            )}
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={styles.loginLink} 
+                            onPress={() => navigation.navigate('Login')}
+                        >
+                            <Text style={styles.loginText}>
+                                Already have an account? <Text style={styles.loginTextBold}>Log In</Text>
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </MotiView>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flexGrow: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f9f9f9' },
-    title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
-    roleContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 20, gap: 10 },
-    roleButton: { paddingVertical: 10, paddingHorizontal: 20, borderWidth: 1, borderColor: '#0066cc', borderRadius: 20 },
-    roleButtonActive: { backgroundColor: '#0066cc' },
-    roleText: { color: '#0066cc', fontWeight: 'bold' },
-    roleTextActive: { color: '#fff' },
-    input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#ddd' },
-    button: { backgroundColor: '#0066cc', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-    buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-    loginLink: { marginTop: 20, alignItems: 'center' },
-    loginText: { color: '#0066cc', fontSize: 14 }
+    container: { 
+        flex: 1, 
+        backgroundColor: theme.colors.background 
+    },
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: 40,
+    },
+    inner: {
+        flex: 1,
+        padding: theme.spacing.xl,
+        justifyContent: 'center',
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 30,
+        marginTop: 40,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: '900',
+        color: theme.colors.primary,
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        fontSize: 14,
+        color: theme.colors.textSecondary,
+        marginTop: 8,
+        fontWeight: '500',
+    },
+    roleContainer: { 
+        flexDirection: 'row', 
+        justifyContent: 'center', 
+        marginBottom: 25, 
+        gap: 12 
+    },
+    roleButton: { 
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12, 
+        paddingHorizontal: 20, 
+        borderWidth: 1.5, 
+        borderColor: theme.colors.border, 
+        borderRadius: theme.borderRadius.full,
+        backgroundColor: theme.colors.surface,
+    },
+    roleButtonActive: { 
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.primary,
+    },
+    roleText: { 
+        color: theme.colors.primary, 
+        fontWeight: '700',
+        marginLeft: 8,
+    },
+    roleTextActive: { 
+        color: '#fff' 
+    },
+    form: {
+        backgroundColor: theme.colors.surface,
+        padding: theme.spacing.lg,
+        borderRadius: theme.borderRadius.xl,
+        ...theme.shadows.lg,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        borderRadius: theme.borderRadius.md,
+        marginBottom: theme.spacing.md,
+        paddingHorizontal: theme.spacing.md,
+    },
+    inputIcon: {
+        marginRight: theme.spacing.sm,
+    },
+    input: {
+        flex: 1,
+        color: theme.colors.text,
+        paddingVertical: 14,
+        fontSize: 15,
+    },
+    button: {
+        backgroundColor: theme.colors.secondary,
+        padding: 18,
+        borderRadius: theme.borderRadius.md,
+        alignItems: 'center',
+        marginTop: theme.spacing.sm,
+        ...theme.shadows.md,
+    },
+    buttonDisabled: {
+        opacity: 0.7,
+    },
+    buttonInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    loginLink: {
+        marginTop: 25,
+        alignItems: 'center',
+    },
+    loginText: {
+        color: theme.colors.textSecondary,
+        fontSize: 14,
+    },
+    loginTextBold: {
+        color: theme.colors.primary,
+        fontWeight: '700',
+    }
 });
 
 export default RegisterScreen;

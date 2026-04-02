@@ -1,6 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
+import { MotiView, MotiText } from 'moti';
+import { Mail, Lock, LogIn, UserPlus } from 'lucide-react-native';
 import { AuthContext } from '../context/AuthContext';
+import { theme } from '../utils/theme';
+
+const { width } = Dimensions.get('window');
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -15,52 +20,178 @@ const LoginScreen = ({ navigation }) => {
         
         try {
             await login(email, password);
-            // Navigation to Home happens automatically in App.js via AuthContext state changes
         } catch (error) {
             Alert.alert('Login Failed', error.response?.data?.message || 'Something went wrong');
         }
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Welcome to FixNow</Text>
-            
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-            
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
-            
-            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={isLoading}>
-                {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Log In</Text>}
-            </TouchableOpacity>
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+        >
+            <MotiView 
+                from={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'timing', duration: 1000 }}
+                style={styles.inner}
+            >
+                <View style={styles.header}>
+                    <MotiView
+                        from={{ translateY: -20, opacity: 0 }}
+                        animate={{ translateY: 0, opacity: 1 }}
+                        transition={{ delay: 300 }}
+                    >
+                        <Text style={styles.logoText}>FixNow</Text>
+                        <Text style={styles.subtitle}>Professional Services at Your Fingertips</Text>
+                    </MotiView>
+                </View>
 
-            <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.registerText}>Don't have an account? Register here.</Text>
-            </TouchableOpacity>
-        </View>
+                <MotiView 
+                    from={{ translateY: 20, opacity: 0 }}
+                    animate={{ translateY: 0, opacity: 1 }}
+                    transition={{ delay: 500 }}
+                    style={styles.form}
+                >
+                    <View style={styles.inputContainer}>
+                        <Mail size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Email Address"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            placeholderTextColor={theme.colors.textSecondary}
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Lock size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Password"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                            placeholderTextColor={theme.colors.textSecondary}
+                        />
+                    </View>
+
+                    <TouchableOpacity 
+                        style={[styles.button, isLoading && styles.buttonDisabled]} 
+                        onPress={handleLogin} 
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <View style={styles.buttonInner}>
+                                <Text style={styles.buttonText}>Log In</Text>
+                                <LogIn size={20} color="#fff" style={{ marginLeft: 8 }} />
+                            </View>
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        style={styles.registerLink} 
+                        onPress={() => navigation.navigate('Register')}
+                    >
+                        <Text style={styles.registerText}>
+                            Don't have an account? <Text style={styles.registerTextBold}>Sign Up</Text>
+                        </Text>
+                    </TouchableOpacity>
+                </MotiView>
+            </MotiView>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f9f9f9' },
-    title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#333' },
-    input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#ddd' },
-    button: { backgroundColor: '#0066cc', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-    buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-    registerLink: { marginTop: 20, alignItems: 'center' },
-    registerText: { color: '#0066cc', fontSize: 14 }
+    container: { 
+        flex: 1, 
+        backgroundColor: theme.colors.background 
+    },
+    inner: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: theme.spacing.xl,
+    },
+    header: {
+        alignItems: 'center',
+        marginBottom: 50,
+    },
+    logoText: {
+        fontSize: 42,
+        fontWeight: '900',
+        color: theme.colors.primary,
+        letterSpacing: -1,
+        textAlign: 'center',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: theme.colors.textSecondary,
+        marginTop: 8,
+        textAlign: 'center',
+        fontWeight: '500',
+    },
+    form: {
+        backgroundColor: theme.colors.surface,
+        padding: theme.spacing.lg,
+        borderRadius: theme.borderRadius.xl,
+        ...theme.shadows.lg,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        borderRadius: theme.borderRadius.md,
+        marginBottom: theme.spacing.md,
+        paddingHorizontal: theme.spacing.md,
+    },
+    inputIcon: {
+        marginRight: theme.spacing.sm,
+    },
+    input: {
+        flex: 1,
+        color: theme.colors.text,
+        paddingVertical: 15,
+        fontSize: 15,
+    },
+    button: {
+        backgroundColor: theme.colors.primary,
+        padding: 18,
+        borderRadius: theme.borderRadius.md,
+        alignItems: 'center',
+        marginTop: theme.spacing.sm,
+        ...theme.shadows.md,
+    },
+    buttonDisabled: {
+        opacity: 0.7,
+    },
+    buttonInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    registerLink: {
+        marginTop: 25,
+        alignItems: 'center',
+    },
+    registerText: {
+        color: theme.colors.textSecondary,
+        fontSize: 14,
+    },
+    registerTextBold: {
+        color: theme.colors.secondary,
+        fontWeight: '700',
+    }
 });
 
 export default LoginScreen;
