@@ -7,7 +7,7 @@ const Review = require('../models/Review');
 // @access  Private
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, profileImage, location } = req.body;
+        const { name, profileImage, location, serviceType } = req.body;
         
         const user = await User.findById(req.user.id).select('-password');
         if (!user) {
@@ -17,6 +17,7 @@ exports.updateProfile = async (req, res) => {
         if (name) user.name = name;
         if (profileImage) user.profileImage = profileImage;
         if (location) user.location = location;
+        if (serviceType && user.role === 'Worker') user.serviceType = serviceType;
 
         await user.save();
         res.json(user);

@@ -1,30 +1,29 @@
 import React from 'react';
-import { StyleSheet, Pressable } from 'react-native';
-import { MotiView } from 'moti';
+import { StyleSheet, Pressable, View } from 'react-native';
 import { theme } from '../utils/theme';
 
-const AnimatedCard = ({ children, delay = 0, style, onPress, index = 0 }) => {
+const AnimatedCard = ({ children, style, onPress }) => {
+    const content = (
+        <View style={styles.pressable}>
+            {children}
+        </View>
+    );
+
     return (
-        <MotiView
-            from={{ opacity: 0, translateY: 20, scale: 0.95 }}
-            animate={{ opacity: 1, translateY: 0, scale: 1 }}
-            transition={{
-                type: 'timing',
-                duration: 500,
-                delay: delay + (index * 100),
-            }}
-            style={[styles.card, style]}
-        >
-            <Pressable 
-                onPress={onPress}
-                style={({ pressed }) => [
-                    styles.pressable,
-                    pressed && styles.pressed
-                ]}
-            >
-                {children}
-            </Pressable>
-        </MotiView>
+        <View style={[styles.card, style]}>
+            {onPress ? (
+                <Pressable 
+                    onPress={onPress}
+                    style={({ pressed }) => [
+                        pressed && styles.pressed
+                    ]}
+                >
+                    {content}
+                </Pressable>
+            ) : (
+                content
+            )}
+        </View>
     );
 };
 

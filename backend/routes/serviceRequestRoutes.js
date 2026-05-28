@@ -7,7 +7,8 @@ const {
     getUserServiceRequests,
     getServiceRequestById,
     updateServiceRequestStatus,
-    uploadProgressImage
+    uploadProgressImage,
+    suggestBudget
 } = require('../controllers/serviceRequestController');
 
 // All routes here will be protected by authMiddleware
@@ -17,6 +18,7 @@ router.use(authMiddleware);
 router.post('/', createServiceRequest);
 router.get('/', getAllServiceRequests);
 router.get('/my-requests', getUserServiceRequests);
+router.get('/suggest-budget', suggestBudget);
 router.get('/:id', getServiceRequestById);
 router.put('/:id/status', updateServiceRequestStatus);
 router.put('/:id/progress-image', uploadProgressImage);

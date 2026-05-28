@@ -1,4 +1,6 @@
-const ServiceRequest = require('../models/ServiceRequest');
+const User = require('../models/User');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
 
 // @route   POST /api/services
 // @desc    Create a new service request (Customer only)
@@ -94,7 +96,7 @@ exports.getServiceRequestById = async (req, res) => {
 // @access  Private
 exports.updateServiceRequestStatus = async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, paymentMethod } = req.body;
         const validStatuses = ['Posted', 'Accepted', 'In Progress', 'Completed', 'Paid', 'Reviewed'];
         
         if (!validStatuses.includes(status)) {
@@ -122,9 +124,42 @@ exports.updateServiceRequestStatus = async (req, res) => {
 
         // Update status
         request.status = status;
+        
+        // Store payment method when marking as Paid
+        if (status === 'Paid' && paymentMethod) {
+            request.paymentMethod = paymentMethod;
+        }
+
         await request.save();
 
-        res.json(request);
+        // Update worker earnings if job is marked as Paid
+        if ((status === 'Paid' || status === 'Completed') && request.worker) {
+            await User.findByIdAndUpdate(request.worker, { $inc: { earnings: request.budget } });
+        }
+        const Notification = require('../models/Notification');
+        const notifications = [];
+        // Notify customer about status change
+        notifications.push(new Notification({
+            user: request.customer,
+            type: 'JobUpdate',
+            title: 'Job status updated',
+            body: `Your job "${request.serviceType}" is now ${status}`,
+        }));
+        // If a worker is assigned, notify them as well
+        if (request.worker) {
+            notifications.push(new Notification({
+                user: request.worker,
+                type: 'JobUpdate',
+                title: 'Job status updated',
+                body: `Job "${request.serviceType}" is now ${status}`,
+            }));
+        }
+        await Notification.insertMany(notifications);
+        const populatedRequest = await ServiceRequest.findById(request._id)
+            .populate('customer', 'name profileImage location rating reviewsCount')
+            .populate('worker', 'name profileImage serviceType rating reviewsCount location');
+
+        res.json(populatedRequest);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -158,9 +193,103 @@ exports.uploadProgressImage = async (req, res) => {
         request.progressImages.push(imageUrl);
         await request.save();
 
-        res.json(request);
+        const populatedRequest = await ServiceRequest.findById(request._id)
+            .populate('customer', 'name profileImage location rating reviewsCount')
+            .populate('worker', 'name profileImage serviceType rating reviewsCount location');
+
+        res.json(populatedRequest);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+};
+
+// @route   GET /api/services/suggest-budget
+// @desc    Suggest a budget based on service type, location, and description (AI-powered)
+// @access  Private
+exports.suggestBudget = async (req, res) => {
+    try {
+        const { serviceType, location, description } = req.query;
+
+        if (!serviceType || !location) {
+            return res.status(400).json({ message: 'Service type and location are required' });
+        }
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        
+        // Fallback to rule-based if no API key or if it's the placeholder
+        if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+            console.log('Using rule-based fallback for budget suggestion');
+            const basePrices = {
+                'Plumbing': 50,
+                'Electrical': 60,
+                'Cleaning': 30,
+                'Repair': 40,
+                'Painting': 80,
+                'Carpentry': 70,
+                'Gardening': 35,
+                'AC Repair': 55
+            };
+            const locationMultipliers = {
+                'Colombo': 1.5,
+                'Kandy': 1.2,
+                'Galle': 1.1,
+                'Jaffna': 1.0,
+                'Other': 0.9
+            };
+
+            const basePrice = basePrices[serviceType] || 40;
+            const multiplier = locationMultipliers[location] || locationMultipliers['Other'];
+            const suggestedBudget = Math.round(basePrice * multiplier * (0.9 + Math.random() * 0.2));
+
+            return res.json({ 
+                suggestedBudget, 
+                reasoning: "Suggested based on average market rates in your district.",
+                isAI: false
+            });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const prompt = `
+            You are an expert price estimator for a service marketplace platform named "FixNow" in Sri Lanka.
+            Task: Suggest a realistic and fair budget in USD for the following job request.
+            
+            Service Category: ${serviceType}
+            Location: ${location}
+            Job Description: ${description || 'No description provided'}
+
+            Guidelines:
+            1. Consider the complexity of the description if provided.
+            2. High-end districts like Colombo should have slightly higher rates.
+            3. Return the response in strict JSON format with the following keys:
+               - "suggestedBudget": (number) The recommended amount in USD.
+               - "reasoning": (string) A brief 1-sentence explanation of why this price was chosen.
+               - "breakdown": (string) A short breakdown like "Labor: $X, Materials: $Y".
+
+            Return ONLY the JSON object.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        // Clean up the response if it contains markdown code blocks
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const aiResponse = JSON.parse(jsonMatch ? jsonMatch[0] : text);
+
+        res.json({ 
+            ...aiResponse,
+            isAI: true
+        });
+    } catch (err) {
+        console.error('AI Budget Error:', err.message);
+        // Secondary fallback if AI fails during execution
+        res.status(200).json({ 
+            suggestedBudget: 50, 
+            reasoning: "Fallback suggestion due to service interruption.",
+            isAI: false 
+        });
     }
 };

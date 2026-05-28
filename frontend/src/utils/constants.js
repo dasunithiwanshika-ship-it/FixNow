@@ -5,3 +5,5 @@ export const SRI_LANKA_DISTRICTS = [
     "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura", 
     "Trincomalee", "Vavuniya"
 ];
+
+export const STRIPE_PUBLISHABLE_KEY = "pk_test_51Pfixnowplaceholderkey";

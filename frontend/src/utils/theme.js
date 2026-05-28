@@ -10,6 +10,14 @@ export const theme = {
         error: '#EF4444',
         border: '#E2E8F0',
         glass: 'rgba(255, 255, 255, 0.7)',
+        // New Premium Colors
+        vibrantBlue: '#2563EB',
+        vibrantPurple: '#8B5CF6',
+        vibrantPink: '#EC4899',
+        gradientStart: '#3B82F6',
+        gradientEnd: '#1D4ED8',
+        cardGradient: ['#3B82F6', '#1E40AF'],
+        gold: '#FBBF24',
     },
     spacing: {
         xs: 4,
@@ -17,12 +25,15 @@ export const theme = {
         md: 16,
         lg: 24,
         xl: 32,
+        xxl: 40,
     },
     borderRadius: {
+        xs: 4,
         sm: 8,
         md: 12,
         lg: 20,
         xl: 30,
+        xxl: 40,
         full: 9999,
     },
     shadows: {
@@ -47,5 +58,13 @@ export const theme = {
             shadowRadius: 20,
             elevation: 10,
         },
+        premium: {
+            shadowColor: '#3B82F6',
+            shadowOffset: { width: 0, height: 12 },
+            shadowOpacity: 0.15,
+            shadowRadius: 24,
+            elevation: 12,
+        }
     }
 };
+

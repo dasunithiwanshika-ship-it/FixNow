@@ -6,9 +6,10 @@ const serviceRequestSchema = new mongoose.Schema({
     serviceType: { type: String, required: true },
     location: { type: String, required: true },
     description: { type: String, required: true },
+    budget: { type: Number, required: true },
     images: [{ type: String }], // Optional job images from Customer
     progressImages: [{ type: String }], // Work progress images from Worker
-    budget: { type: Number, required: true },
+    paymentMethod: { type: String, enum: ['Cash', 'Card'], default: 'Cash' },
     status: { 
         type: String, 
         enum: ['Posted', 'Accepted', 'In Progress', 'Completed', 'Paid', 'Reviewed'], 

@@ -70,6 +70,11 @@ exports.createReview = async (req, res) => {
 // @access  Public (or Private depending on requirements, making Private for now)
 exports.getWorkerReviews = async (req, res) => {
     try {
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(req.params.workerId)) {
+            return res.status(400).json({ message: 'Invalid worker ID' });
+        }
+
         const reviews = await Review.find({ worker: req.params.workerId })
             .populate('reviewer', 'name profileImage')
             .populate('job', 'serviceType createdAt')

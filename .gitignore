@@ -1,0 +1,19 @@
+# Ignore local env files
+.env
+.env.local
+
+# Node dependencies
+node_modules/
+
+# Expo build artifacts
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Backend uploads and generated files
+backend/uploads/
+
+# OS and editor files
+.DS_Store
+*.log

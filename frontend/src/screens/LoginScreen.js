@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
-import { MotiView, MotiText } from 'moti';
-import { Mail, Lock, LogIn, UserPlus } from 'lucide-react-native';
+import { Mail, Lock, LogIn } from 'lucide-react-native';
 import { AuthContext } from '../context/AuthContext';
 import { theme } from '../utils/theme';
 
@@ -30,29 +29,15 @@ const LoginScreen = ({ navigation }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <MotiView 
-                from={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'timing', duration: 1000 }}
-                style={styles.inner}
-            >
+            <View style={styles.inner}>
                 <View style={styles.header}>
-                    <MotiView
-                        from={{ translateY: -20, opacity: 0 }}
-                        animate={{ translateY: 0, opacity: 1 }}
-                        transition={{ delay: 300 }}
-                    >
+                    <View>
                         <Text style={styles.logoText}>FixNow</Text>
                         <Text style={styles.subtitle}>Professional Services at Your Fingertips</Text>
-                    </MotiView>
+                    </View>
                 </View>
 
-                <MotiView 
-                    from={{ translateY: 20, opacity: 0 }}
-                    animate={{ translateY: 0, opacity: 1 }}
-                    transition={{ delay: 500 }}
-                    style={styles.form}
-                >
+                <View style={styles.form}>
                     <View style={styles.inputContainer}>
                         <Mail size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
                         <TextInput
@@ -101,8 +86,8 @@ const LoginScreen = ({ navigation }) => {
                             Don't have an account? <Text style={styles.registerTextBold}>Sign Up</Text>
                         </Text>
                     </TouchableOpacity>
-                </MotiView>
-            </MotiView>
+                </View>
+            </View>
         </KeyboardAvoidingView>
     );
 };

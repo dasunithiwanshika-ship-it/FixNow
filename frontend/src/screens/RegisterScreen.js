@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
-import { MotiView, AnimatePresence } from 'moti';
-import { User, Mail, Lock, Briefcase, MapPin, ArrowRight, LogIn } from 'lucide-react-native';
+import { User, Mail, Lock, Briefcase, MapPin, ArrowRight } from 'lucide-react-native';
 import { AuthContext } from '../context/AuthContext';
 import { theme } from '../utils/theme';
 
@@ -46,12 +45,7 @@ const RegisterScreen = ({ navigation }) => {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                <MotiView 
-                    from={{ opacity: 0, translateY: 20 }}
-                    animate={{ opacity: 1, translateY: 0 }}
-                    transition={{ type: 'timing', duration: 800 }}
-                    style={styles.inner}
-                >
+                <View style={styles.inner}>
                     <View style={styles.header}>
                         <Text style={styles.title}>Create Account</Text>
                         <Text style={styles.subtitle}>Join FixNow and get started today</Text>
@@ -113,38 +107,30 @@ const RegisterScreen = ({ navigation }) => {
                             />
                         </View>
 
-                        <AnimatePresence>
-                            {role === 'Worker' && (
-                                <MotiView
-                                    from={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 130 }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    transition={{ type: 'timing', duration: 400 }}
-                                    style={{ overflow: 'hidden' }}
-                                >
-                                    <View style={styles.inputContainer}>
-                                        <Briefcase size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
-                                        <TextInput 
-                                            style={styles.input} 
-                                            placeholder="Service Type (e.g., Plumber)" 
-                                            value={serviceType} 
-                                            onChangeText={setServiceType} 
-                                            placeholderTextColor={theme.colors.textSecondary}
-                                        />
-                                    </View>
-                                    <View style={styles.inputContainer}>
-                                        <MapPin size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
-                                        <TextInput 
-                                            style={styles.input} 
-                                            placeholder="Location (City or Area)" 
-                                            value={location} 
-                                            onChangeText={setLocation} 
-                                            placeholderTextColor={theme.colors.textSecondary}
-                                        />
-                                    </View>
-                                </MotiView>
-                            )}
-                        </AnimatePresence>
+                        {role === 'Worker' && (
+                            <View>
+                                <View style={styles.inputContainer}>
+                                    <Briefcase size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                                    <TextInput 
+                                        style={styles.input} 
+                                        placeholder="Service Type (e.g., Plumber)" 
+                                        value={serviceType} 
+                                        onChangeText={setServiceType} 
+                                        placeholderTextColor={theme.colors.textSecondary}
+                                    />
+                                </View>
+                                <View style={styles.inputContainer}>
+                                    <MapPin size={20} color={theme.colors.textSecondary} style={styles.inputIcon} />
+                                    <TextInput 
+                                        style={styles.input} 
+                                        placeholder="Location (City or Area)" 
+                                        value={location} 
+                                        onChangeText={setLocation} 
+                                        placeholderTextColor={theme.colors.textSecondary}
+                                    />
+                                </View>
+                            </View>
+                        )}
 
                         <TouchableOpacity 
                             style={[styles.button, isLoading && styles.buttonDisabled]} 
@@ -170,7 +156,7 @@ const RegisterScreen = ({ navigation }) => {
                             </Text>
                         </TouchableOpacity>
                     </View>
-                </MotiView>
+                </View>
             </ScrollView>
         </KeyboardAvoidingView>
     );

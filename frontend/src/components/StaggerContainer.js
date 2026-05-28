@@ -1,25 +1,16 @@
 import React from 'react';
 import { View } from 'react-native';
-import { MotiView } from 'moti';
 
-const StaggerContainer = ({ children, delay = 0, staggerBase = 100 }) => {
+const StaggerContainer = ({ children }) => {
     return (
         <View>
-            {React.Children.map(children, (child, index) => {
+            {React.Children.map(children, (child) => {
                 if (!React.isValidElement(child)) return child;
                 
                 return (
-                    <MotiView
-                        from={{ opacity: 0, translateX: -20 }}
-                        animate={{ opacity: 1, translateX: 0 }}
-                        transition={{
-                            type: 'timing',
-                            duration: 400,
-                            delay: delay + (index * staggerBase),
-                        }}
-                    >
+                    <View>
                         {child}
-                    </MotiView>
+                    </View>
                 );
             })}
         </View>
