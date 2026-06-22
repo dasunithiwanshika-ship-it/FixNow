@@ -2,21 +2,25 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists and is writable; fall back to memory storage on read-only
 const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+let useDisk = true;
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+    }
+    fs.accessSync(uploadDir, fs.constants.W_OK);
+} catch (err) {
+    useDisk = false;
+    console.warn('Uploads directory not writable — using memory storage for file uploads.');
 }
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        // Create unique filename
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
-});
+const storage = useDisk
+    ? multer.diskStorage({
+          destination: (req, file, cb) => cb(null, 'uploads/'),
+          filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+      })
+    : multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
     // only allow images
