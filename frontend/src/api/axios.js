@@ -3,18 +3,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Platform } from 'react-native';
 
-// When running on Android emulator, 10.0.2.2 maps to your computer's localhost.
-// For physical devices, you must replace this with your computer's local IP address
+// Use a network-reachable host so Expo Go and the browser can reach the backend.
+// Android emulator uses 10.0.2.2; other devices should use the machine's LAN IP.
 const getBaseUrl = () => {
-    if (Platform.OS === 'web') {
-        return 'http://localhost:5000/api';
-    } else if (Platform.OS === 'android') {
-        // You may need your local IP if testing on a physical device
-        return 'http://10.0.2.2:5000/api'; 
-    } else {
-        // Fallback for iOS simulator or physical devices. Update IP if needed.
-        return 'http://192.168.8.144:5000/api';
+    if (Platform.OS === 'android') {
+        return 'http://10.0.2.2:5000/api';
     }
+
+    return 'http://192.168.8.144:5000/api';
 };
 
 const API = axios.create({

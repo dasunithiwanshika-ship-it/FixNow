@@ -26,9 +26,15 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 15000,
+  connectTimeoutMS: 15000,
+})
   .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .catch(err => {
+    console.error('MongoDB connection error:', err.message);
+    console.error('Check that your MongoDB Atlas IP is whitelisted and that MONGO_URI is correct.');
+  });
 
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');

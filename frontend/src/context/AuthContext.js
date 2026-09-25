@@ -52,14 +52,15 @@ export const AuthProvider = ({ children }) => {
     const checkLoggedUser = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            if (token) {
-                // Optionally call /auth/me to verify token and get fresh user data
-                const res = await API.get('/auth/me');
-                setUser(res.data);
+            if (!token) {
+                setUser(null);
+                return;
             }
+
+            const res = await API.get('/auth/me');
+            setUser(res?.data || null);
         } catch (error) {
-            console.error('Check user error', error);
-            // Token might be expired
+            console.error('Check user error', error.response?.data || error.message || error);
             await AsyncStorage.removeItem('userToken');
             setUser(null);
         } finally {

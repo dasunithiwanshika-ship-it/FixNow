@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const ServiceRequest = require('../models/ServiceRequest');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 

@@ -95,7 +95,7 @@ FixNow/
 2. **Backend Setup**
    ```bash
    cd backend
-   npm install
+   npm installstart
    # Set up environment variables in .env
    npm start
    ```
@@ -104,7 +104,7 @@ FixNow/
    ```bash
    cd ../frontend
    npm install
-   # For Expo: expo start
+   # For Expo: npx expo start --clear
    # For React Native CLI: npx react-native run-android or run-ios
    ```
 
@@ -136,3 +136,8 @@ PORT=5000
 ## License
 
 This project is licensed under the MIT License.
+
+## cutomer lisa@gmail.com   lisa
+## worker jone@gmail.com   jone
+
+
